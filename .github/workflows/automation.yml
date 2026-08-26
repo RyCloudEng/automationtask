@@ -2,7 +2,7 @@ name: cicd deployment
 
 on:
   push:
-    branches: [main] 
+    branches: main
 
 jobs:
   vulnerability-scan:
@@ -16,7 +16,7 @@ jobs:
           scan-type: 'fs'
           format: 'table'
           exit-code: '1'
-          ignore-unfixed: true 
+          ignore-unfixed: true
   #secret-scan:
   #build:
   #push-to-ecr:
