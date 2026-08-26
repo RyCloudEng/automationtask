@@ -1,0 +1,23 @@
+name: cicd deployment
+
+on:
+  push:
+    branches: [main] 
+
+jobs:
+  vulnerability-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+  #secret-scan:
+  #build:
+  #push-to-ecr:
+  #deploy-to-ec2:
