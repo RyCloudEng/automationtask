@@ -2,7 +2,8 @@ name: cicd deployment
 
 on:
     push:
-        branches: main
+        branches:
+            - "main"
 
 jobs:
   vulnerability-scan:
