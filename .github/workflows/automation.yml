@@ -58,13 +58,13 @@ jobs:
         run: |
           docker save \
             ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            -o docker-image.tar
+            -o frontend:latest.tar
 
       - name: Upload Docker image
         uses: actions/upload-artifact@v4
         with:
-          name: docker-image
-          path: docker-image.tar
+          name: frontend:latest
+          path: frontend:latest.tar
   push-to-ecr:
     name: Push Image to ECR
     runs-on: ubuntu-latest
@@ -81,11 +81,11 @@ jobs:
       - name: Download Docker image
         uses: actions/download-artifact@v4
         with:
-          name: docker-image
+          name: frontend:latest
 
       - name: Load Docker image
         run: |
-          docker load -i docker-image.tar
+          docker load -i frontend:latest.tar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
