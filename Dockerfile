@@ -1,4 +1,4 @@
-FROM alpine3.19
+FROM docker:22.07-alpine3.19
 
 WORKDIR /app
 
