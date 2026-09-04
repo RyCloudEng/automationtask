@@ -1,79 +1,79 @@
-name: cicd deployment
+# name: cicd deployment
 
-on:
-    push:
-        branches:
-            - main
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: automationtask
-  IMAGE_TAG: ${{ github.sha }}
+# on:
+#     push:
+#         branches:
+#             - main
+# env:
+#   AWS_REGION: us-east-1
+#   ECR_REPOSITORY: automationtask
+#   IMAGE_TAG: ${{ github.sha }}
 
-jobs:
-  vulnerability-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v5
-      - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-  secret-scan:
-    name: Secret Scan
-    runs-on: ubuntu-latest
+# jobs:
+#   vulnerability-scan:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: checkout repository
+#         uses: actions/checkout@v5
+#       - name: Run Trivy filesystem scan
+#         uses: aquasecurity/trivy-action@master
+#         with:
+#           scan-type: 'fs'
+#           format: 'table'
+#           exit-code: '0'
+#           ignore-unfixed: true
+#   secret-scan:
+#     name: Secret Scan
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v5
+#         with:
+#           fetch-depth: 0
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  build-push-to-ecr:
-    name: Build Docker Image
-    runs-on: self-hosted
-    needs: secret-scan
+#       - name: Run Gitleaks
+#         uses: gitleaks/gitleaks-action@v2
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#   build-push-to-ecr:
+#     name: Build Docker Image
+#     runs-on: self-hosted
+#     needs: secret-scan
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v5
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: |
-          docker build \
-            -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            .
+#       - name: Build Docker image
+#         run: |
+#           docker build \
+#             -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+#             .
 
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v5
-      #   with:
-      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-      #     aws-region: ${{ env.AWS_REGION }}
+#       # - name: Configure AWS credentials
+#       #   uses: aws-actions/configure-aws-credentials@v5
+#       #   with:
+#       #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+#       #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Tag Docker image
-        run: |
-          docker tag \
-            ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+#       - name: Tag Docker image
+#         run: |
+#           docker tag \
+#             ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+#             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      - name: Push Docker image to ECR
-        run: |
-          docker push \
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+#       - name: Push Docker image to ECR
+#         run: |
+#           docker push \
+#             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
   #secret-scan:
   #build:
   #push-to-ecr:
